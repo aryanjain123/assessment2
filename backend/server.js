@@ -16,12 +16,21 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 // ==========================================
 
-// CORS configuration
-app.use(cors({
-    origin: '*', // Allow all origins for the demo
-    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// CORS configuration - allow all origins with proper preflight handling
+const corsOptions = {
+    origin: true, // Reflect the request origin (allows any origin with credentials)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true,
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+    preflightContinue: false
+};
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+// Apply CORS to all routes
+app.use(cors(corsOptions));
 
 // Body parser with error handling
 app.use(express.json({
