@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build output
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Test/Evaluation files (local only)
+evaluation_results.json
+retrieval_metrics.json
+debug_query.js
+evaluate_rag.js
+evaluate_metrics.js
+retry_missing.js
+test_pipeline.js
+
+# Coverage
+coverage/
+.nyc_output/

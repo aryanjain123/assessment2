@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Playground | AI-Powered Document Search</title>
+    <meta name="description"
+        content="Upload documents and ask questions with AI-powered retrieval, reranking, and generation">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>RAG Playground</h1>
+            </div>
+
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="section-header">
+                    <h2>Upload Documents</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="uploadPdfBtn" title="Upload PDF file">
+                            Upload PDF
+                        </button>
+                        <button class="btn btn-ghost" id="clearDocsBtn" title="Clear all documents">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="upload-area" id="uploadArea">
+                    <textarea id="documentInput"
+                        placeholder="Paste your document text here...&#10;&#10;The text will be chunked, embedded, and stored in Pinecone for retrieval."
+                        rows="6"></textarea>
+                    <div class="upload-controls">
+                        <input type="text" id="documentTitle" placeholder="Document title (optional)"
+                            class="input-title">
+                        <button class="btn btn-primary" id="uploadBtn">
+                            Upload & Process
+                        </button>
+                    </div>
+                </div>
+                <div class="upload-status" id="uploadStatus"></div>
+
+                <!-- Uploaded Documents List -->
+                <div class="uploaded-docs" id="uploadedDocs">
+                    <div class="uploaded-docs-header">
+                        <h4>Processed Documents</h4>
+                        <button class="btn-refresh" id="refreshDocsBtn" title="Refresh list"></button>
+                    </div>
+                    <div class="docs-list" id="docsList">
+                        <p class="placeholder-text">No documents uploaded yet.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Query Section -->
+            <section class="query-section">
+                <div class="section-header">
+                    <h2>Ask Questions</h2>
+                </div>
+                <div class="query-area">
+                    <div class="query-input-wrapper">
+                        <input type="text" id="queryInput" placeholder="Ask a question about your documents..."
+                            class="query-input">
+                        <button class="btn btn-primary" id="queryBtn">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection">
+                <!-- Answer Panel -->
+                <div class="answer-panel" id="answerPanel">
+                    <div class="panel-header">
+                        <h3>Answer</h3>
+                        <div class="timing-badge" id="timingBadge"></div>
+                    </div>
+                    <div class="answer-content" id="answerContent">
+                        <p class="placeholder-text">Your answer will appear here after you ask a question.</p>
+                    </div>
+                </div>
+
+                <!-- Citations Panel -->
+                <div class="citations-panel" id="citationsPanel">
+                    <div class="panel-header">
+                        <h3>Sources & Citations</h3>
+                    </div>
+                    <div class="citations-content" id="citationsContent">
+                        <p class="placeholder-text">Referenced sources will be shown here.</p>
+                    </div>
+                </div>
+
+                <!-- Metrics Panel -->
+                <div class="metrics-panel" id="metricsPanel">
+                    <div class="metric-card">
+                        <span class="metric-label">Retrieval</span>
+                        <span class="metric-value" id="retrievalTime">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Rerank</span>
+                        <span class="metric-value" id="rerankTime">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Generation</span>
+                        <span class="metric-value" id="generationTime">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Tokens</span>
+                        <span class="metric-value" id="tokenCount">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Est. Cost</span>
+                        <span class="metric-value" id="costEstimate">-</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with Pinecone • Cohere • Gemini</p>
+        </footer>
+    </div>
+
+    <!-- PDF Upload Modal -->
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Upload PDF Document</h3>
+                <button class="modal-close" id="closePdfModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pdf-warning">
+                    <div class="warning-text">
+                        <strong>Text-Only Extraction</strong>
+                        <p>This tool extracts <strong>only text content</strong> from PDFs. It does NOT support:</p>
+                        <ul>
+                            <li>Scanned documents or images</li>
+                            <li>Tables and charts</li>
+                            <li>Handwritten content</li>
+                            <li>Complex layouts</li>
+                        </ul>
+                        <p>For best results, use PDFs with selectable text.</p>
+                    </div>
+                </div>
+                <div class="pdf-upload-area" id="pdfDropZone">
+                    <input type="file" id="pdfFileInput" accept=".pdf" hidden>
+                    <div class="drop-zone-content">
+                        <p>Drag & drop a PDF file here</p>
+                        <p class="drop-subtext">or click to browse</p>
+                        <p class="file-limit">Max file size: 10MB</p>
+                    </div>
+                </div>
+                <div class="selected-file" id="selectedFile" style="display: none;">
+                    <span class="file-name" id="selectedFileName"></span>
+                    <button class="btn-remove" id="removeFile">&times;</button>
+                </div>
+                <input type="text" id="pdfTitle" placeholder="Document title (optional)" class="input-title">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancelPdfUpload">Cancel</button>
+                <button class="btn btn-primary" id="confirmPdfUpload" disabled>
+                    Upload PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text" id="loadingText">Processing...</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
