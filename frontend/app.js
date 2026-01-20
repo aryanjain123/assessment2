@@ -5,7 +5,7 @@
  */
 
 // API base URL
-const API_BASE = 'https://assessment2-ocm4.onrender.com';
+const API_BASE = 'https://assessment2-kplv.onrender.com/';
 
 // ==========================================
 // Safe Element Getter
