@@ -4,8 +4,10 @@
  * With comprehensive error handling
  */
 
-// API base URL
-const API_BASE = 'https://assessment2-kplv.onrender.com/';
+// API base URL - auto-detect local vs production
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : 'https://assessment2-kplv.onrender.com';
 
 // ==========================================
 // Safe Element Getter
